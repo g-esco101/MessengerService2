@@ -31,8 +31,9 @@ namespace MessengerService2.Repositories
         {
             Users user = await GetUserAsync(username);
             if (user == null) return null;
-            string[] values = user.HashedPassword.Split(':');
-            bool valid = Hasher.CheckHash(user.HashedPassword, password);
+            //       string[] values = user.HashedPassword.Split(':');
+            //       bool valid = Hasher.CheckHash(user.HashedPassword, password);
+            bool valid = Hasher.ValidHash(user.HashedPassword, password);
             if (valid) { return user; }
             return null;
         }
@@ -42,8 +43,9 @@ namespace MessengerService2.Repositories
         {
             Users user = GetUser(username);
             if (user == null) return null;
-            string[] values = user.HashedPassword.Split(':');
-            bool valid = Hasher.CheckHash(user.HashedPassword, password);
+            //       string[] values = user.HashedPassword.Split(':');
+            //       bool valid = Hasher.CheckHash(user.HashedPassword, password);
+            bool valid = Hasher.ValidHash(user.HashedPassword, password);
             if (valid) { return user; }
             return null;
         }

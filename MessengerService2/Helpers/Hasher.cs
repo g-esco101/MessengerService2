@@ -23,7 +23,7 @@ namespace MessengerService2.Helpers
         {
             string[] providedValues = providedPassword.Split(':');
             string[] storedValues = hashSaltIter.Split(':');
-            return CompareHashes(storedValues[0], providedValues[0]);
+            return ValidHash(storedValues[0], providedValues[0]);
         }
 
         private static string HashHelper(string password, string salt, int iterations)
@@ -46,7 +46,7 @@ namespace MessengerService2.Helpers
         // Must compare every character every time to prevent "timing attacks." E.g, It might take only a 
         // millisecond to determine that the first hashed character is incorrect, but ten milliseconds to find
         // a failure farther into the text, and a hacker could monitor these timing variations. 
-        private static bool CompareHashes(string original, string provided)
+        public static bool ValidHash(string original, string provided)
         {
             uint differences = (uint)original.Length ^ (uint)provided.Length;
             for (int position = 0; position < Math.Min(original.Length, provided.Length); position++)
