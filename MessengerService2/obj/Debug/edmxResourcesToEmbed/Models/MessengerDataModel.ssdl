@@ -11,6 +11,7 @@
     <Property Name="Time" Type="time" Precision="7" />
     <Property Name="Contents" Type="varchar" MaxLength="1000" />
     <Property Name="Read" Type="varchar" MaxLength="6" />
+    <Property Name="Queued" Type="bit" />
   </EntityType>
   <EntityType Name="UserRoles">
     <Key>

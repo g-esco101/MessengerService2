@@ -1,88 +1,106 @@
-﻿using MessengerService2.Models;
-using MessengerService2.Repositories;
-using MessengerService2.Services;
-using System;
-using System.Web;
+﻿using MessengerService2.Helpers;
+using MessengerService2.Models;
+using MessengerService2.Unit;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Web.Http;
 
 namespace MessengerService2.Controllers
 {
     public class UsersController : ApiController
     {
-        private IUserMasterRepository _userRepo = new UserMasterRepository();
+        private IUnitOfWork _unitOfWork;
 
-        private IUsersServices _userServices = new UsersServices();
+        public UsersController()
+        {
+            _unitOfWork = new UnitOfWork();
+        }
 
         [HttpPost]
         [AllowAnonymous]
         [Route("api/users/register")]
-        public IHttpActionResult Registration(string username, string password, string roles)
+        public async Task<IHttpActionResult> Registration(Dictionary<string, string> userInfo)
         {
-            username = HttpUtility.UrlDecode(username);
-            password = HttpUtility.UrlDecode(password);
-            try
-            {
-                if (_userRepo.RegisterUser(username, password, roles))
-                {
-                    return Ok();
-                }
-            }
-            catch { }
-            return Conflict();
+            string username = userInfo["username"];
+            string password = userInfo["password"];
+            List<string> roles = new List<string>();
+            roles.Add(userInfo["roles"]);
+            if (StringChecker.IsNullEmptyWhiteSpace(username, password)) { return Conflict(); }
+            if (StringChecker.IsRoleNullEmptyWhiteSpace(roles)) { return Conflict(); }
+            bool userAdded = await _unitOfWork.userRepo.AddUserAsync(username, password);
+            if (!userAdded) { return Conflict(); }
+            // Must save the user, because Addroles searches user in db. 
+            int saved = await _unitOfWork.SaveAsync();
+            if (saved < 0) { return Conflict(); }
+
+            bool rolesAdded = await _unitOfWork.userRepo.AddRolesAsync(username, roles);
+            if (!rolesAdded) { return Conflict(); }
+            saved = await _unitOfWork.SaveAsync();
+            if (saved < 0) { return Conflict(); }
+            return Ok();
         }
 
 
-        [HttpPut]
+        [HttpPost]
         [Authorize(Roles = "Admin")]
         [Route("api/users/addroles")]
-        public IHttpActionResult AddRolesToUser(string username, string roles)
+        public async Task<IHttpActionResult> AddRoles(string username, List<string> roles)
         {
-            try
+            if (StringChecker.IsNullEmptyWhiteSpace(username)) { return Conflict(); }
+            if (StringChecker.IsRoleNullEmptyWhiteSpace(roles)) { return Conflict(); }
+            bool added = await _unitOfWork.userRepo.AddRolesAsync(username, roles);
+            if (added)
             {
-                string[] myRoles = _userServices.stringCSVToArray(roles);
-                if(_userRepo.AddRolesToUser(username, myRoles))
-                {
-                    return Ok();
-                }
+                int saved = await _unitOfWork.SaveAsync();
+                if (saved < 0) { return Conflict(); }
             }
-            catch { }
-            return Conflict();
+            else
+            {
+                return Conflict();
+            }
+            return Ok();
         }
 
-        [HttpPut]
+        [HttpDelete]
         [Authorize(Roles = "Admin")]
         [Route("api/users/removeroles")]
-        public IHttpActionResult RemoveRolesFromUser(string username, string roles)
+        public async Task<IHttpActionResult> RemoveRoles(string username, List<string> roles)
         {
-            try
-            {
-                string[] myRoles = _userServices.stringCSVToArray(roles);
-                if (_userRepo.RemoveRolesFromUser(username, myRoles))
-                {
-                    return Ok();
-                }
-            }
-            catch { }
-            return Conflict();
+            if (StringChecker.IsNullEmptyWhiteSpace(username)) { return Conflict(); }
+            if (StringChecker.IsRoleNullEmptyWhiteSpace(roles)) { return Conflict(); }
+            bool rolesRemoved = await _unitOfWork.userRepo.RemoveRolesAsync(username, roles);
+            if (!rolesRemoved) { return Conflict(); }
+            int saved = await _unitOfWork.SaveAsync();
+            if (saved < 0) { return Conflict(); }
+            return Ok();
         }
 
         [HttpDelete]
         [Authorize(Roles = "Admin")]
         [Route("api/users/delete")]
-        public IHttpActionResult DeleteUser(string username)
+        public async Task<IHttpActionResult> DeleteUser(string username)
         {
-            if (_userRepo.DeleteUser(username))
-            {
-                return Ok();
-            }
-            return Conflict();
+            if (StringChecker.IsNullEmptyWhiteSpace(username)) { return Conflict(); }
+            Users user = await _unitOfWork.userRepo.GetUserAsync(username);
+            _unitOfWork.userRepo.RemoveAllRoles(user.ID);
+
+            //          IEnumerable<Messages> deleteMsgs = _unitOfWork.msgRepo.Get(username);
+            IEnumerable<Messages> deleteMsgs = await _unitOfWork.msgRepo.GetAsync(username);
+
+            _unitOfWork.msgRepo.RemoveRange(deleteMsgs);
+
+            bool userDeleted = await _unitOfWork.userRepo.DeleteUserAsync(username);
+            if (!userDeleted) { return Conflict(); }
+            int saved = await _unitOfWork.SaveAsync();
+            if (saved < 0) { return Conflict(); }
+            return Ok();
         }
 
         protected override void Dispose(bool disposing)
         {
             if (disposing)
             {
-                _userRepo.Dispose();
+                _unitOfWork.Dispose();
             }
             base.Dispose(disposing);
         }

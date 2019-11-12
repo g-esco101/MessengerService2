@@ -13,9 +13,11 @@ namespace MessengerService2.Models
         }
         public override async Task GrantResourceOwnerCredentials(OAuthGrantResourceOwnerCredentialsContext context)
         {
-            using (IUserMasterRepository _repo = new UserMasterRepository())
+            using (MessengerService_DBEntities dbContext = new MessengerService_DBEntities())
             {
+                IUsersRolesRepository _repo = new UsersRolesRepository(dbContext);
                 var user = _repo.ValidateUser(context.UserName, context.Password);
+
                 if (user == null)
                 {
                     context.SetError("invalid_grant", "Provided username and password is incorrect");

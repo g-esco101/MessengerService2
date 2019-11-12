@@ -71,3 +71,10 @@ C:\Users\LeonardoDaVinci\Git Repositories\MessengerService2\MessengerService2\bi
 C:\Users\LeonardoDaVinci\Git Repositories\MessengerService2\MessengerService2\obj\Debug\MessengerService2.csproj.CopyComplete
 C:\Users\LeonardoDaVinci\Git Repositories\MessengerService2\MessengerService2\obj\Debug\MessengerService2.dll
 C:\Users\LeonardoDaVinci\Git Repositories\MessengerService2\MessengerService2\obj\Debug\MessengerService2.pdb
+C:\Users\LeonardoDaVinci\Git Repositories\MessengerService2\MessengerService2\bin\System.Runtime.CompilerServices.Unsafe.dll
+C:\Users\LeonardoDaVinci\Git Repositories\MessengerService2\MessengerService2\bin\Unity.Abstractions.dll
+C:\Users\LeonardoDaVinci\Git Repositories\MessengerService2\MessengerService2\bin\Unity.Container.dll
+C:\Users\LeonardoDaVinci\Git Repositories\MessengerService2\MessengerService2\bin\Unity.WebApi.dll
+C:\Users\LeonardoDaVinci\Git Repositories\MessengerService2\MessengerService2\bin\System.Runtime.CompilerServices.Unsafe.xml
+C:\Users\LeonardoDaVinci\Git Repositories\MessengerService2\MessengerService2\bin\Unity.Abstractions.pdb
+C:\Users\LeonardoDaVinci\Git Repositories\MessengerService2\MessengerService2\bin\Unity.Container.pdb

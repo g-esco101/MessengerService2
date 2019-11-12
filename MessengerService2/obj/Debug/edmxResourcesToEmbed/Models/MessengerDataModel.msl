@@ -4,6 +4,7 @@
     <EntitySetMapping Name="Messages">
       <EntityTypeMapping TypeName="MessengerModel.Messages">
         <MappingFragment StoreEntitySet="Messages">
+          <ScalarProperty Name="Queued" ColumnName="Queued" />
           <ScalarProperty Name="ID" ColumnName="ID" />
           <ScalarProperty Name="SenderID" ColumnName="SenderID" />
           <ScalarProperty Name="ReceiverID" ColumnName="ReceiverID" />
